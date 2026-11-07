@@ -7,6 +7,7 @@ import com.dogukan.takehometwo.dto.request.ResponseBalance;
 import com.dogukan.takehometwo.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +18,9 @@ public class RestAccountController {
     private final AccountService accountService;
 
     @PostMapping(path = "/create")
-    public ResponseEntity<ApiResponse> createAccount(@RequestBody RequestCreateAccount account) {
+    public ResponseEntity<ApiResponse> createAccount(@Valid @RequestBody RequestCreateAccount account) {
         accountService.createAccount(account);
-        return ResponseEntity.ok(new ApiResponse(true, "Account created successfully."));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse(true, "Account created successfully."));
     }
 
     @GetMapping(path = "/balance")
