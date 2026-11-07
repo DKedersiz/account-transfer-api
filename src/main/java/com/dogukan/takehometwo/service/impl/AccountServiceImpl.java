@@ -29,16 +29,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void transferMoney(RequestTransferMoney requestTransferMoney) {
+        String fromNo = requestTransferMoney.getFromAccountNo();
+        String toNo = requestTransferMoney.getToAccountNo();
 
-        if (requestTransferMoney.getToAccountNo().equals(requestTransferMoney.getFromAccountNo())) {
-            throw new SameAccountException("Cannot transfer money from same account");
+        if (fromNo.equals(toNo)) {
+            throw new SameAccountException("Cannot transfer money to the same account");
         }
 
-        Account fromAccount = accountRepository.findForUpdateByAccountNumber(requestTransferMoney.fromAccountNo)
-                .orElseThrow(() -> new AccountNotFound("Account number not found"));
+        Account fromAccount;
+        Account toAccount;
 
-        Account toAccount = accountRepository.findForUpdateByAccountNumber(requestTransferMoney.toAccountNo)
-                .orElseThrow(() -> new AccountNotFound("Account number not found"));
+        if (fromNo.compareTo(toNo) < 0) {
+            fromAccount = lockAccount(fromNo);
+            toAccount = lockAccount(toNo);
+        } else {
+            toAccount = lockAccount(toNo);
+            fromAccount = lockAccount(fromNo);
+        }
 
         fromAccount.withdraw(requestTransferMoney.getAmount());
         toAccount.deposit(requestTransferMoney.getAmount());
@@ -51,6 +58,11 @@ public class AccountServiceImpl implements AccountService {
                 .accountNumber(foundAccount.getAccountNumber())
                 .amount(foundAccount.getBalance())
                 .build();
+    }
+
+    private Account lockAccount(String accountNumber) {
+        return accountRepository.findForUpdateByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFound("Account number not found: " + accountNumber));
     }
 
 
