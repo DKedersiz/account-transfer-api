@@ -5,6 +5,7 @@ import com.dogukan.takehometwo.dto.request.RequestCreateAccount;
 import com.dogukan.takehometwo.dto.request.RequestTransferMoney;
 import com.dogukan.takehometwo.dto.request.ResponseBalance;
 import com.dogukan.takehometwo.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class RestAccountController {
     }
 
     @PostMapping(path = "/transfer")
-    public ResponseEntity<ApiResponse> transferMoney(@RequestBody RequestTransferMoney transferMoney) {
+    public ResponseEntity<ApiResponse> transferMoney(@Valid @RequestBody RequestTransferMoney transferMoney) {
         accountService.transferMoney(transferMoney);
         return ResponseEntity.ok(new ApiResponse(true, "Successfully transfered money between accounts."));
     }

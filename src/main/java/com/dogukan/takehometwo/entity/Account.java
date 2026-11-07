@@ -1,5 +1,6 @@
 package com.dogukan.takehometwo.entity;
 
+import com.dogukan.takehometwo.exception.InsufficientBalanceException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,4 +26,23 @@ public class Account {
     private String email;
     private BigDecimal balance;
 
+    public void withdraw(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Withdraw amount must be greater than zero");
+        }
+
+        if (this.balance.compareTo(amount) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance");
+        }
+
+        this.balance = this.balance.subtract(amount);
+    }
+
+    public void deposit(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be greater than zero");
+        }
+
+        this.balance = this.balance.add(amount);
+    }
 }
